@@ -2,17 +2,12 @@
   <div id="wrapper">
     <nav class="navbar is-dark">
       <div class="navbar-brand">
-        <router-link to="/" class="navbar-item"
-          ><strong>Djackets</strong></router-link
-        >
-
-        <a
-          class="navbar-burger"
+        <router-link to="/" class="navbar-item"><strong>Djackets</strong></router-link>
+        <a class="navbar-burger"
           aria-label="menu"
           aria-expanded="false"
           data-target="navbar-menu"
-          @click="showMobileMenu = !showMobileMenu"
-        >
+          @click="showMobileMenu = !showMobileMenu">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
@@ -20,24 +15,14 @@
         </a>
       </div>
 
-      <div
-        class="navbar-menu"
-        id="navbar-menu"
-        v-bind:class="{ 'is-active': showMobileMenu }"
-      >
+      <div class="navbar-menu" id="navbar-menu" :class="{ 'is-active': showMobileMenu }">
         <div class="navbar-start">
           <div class="navbar-item">
             <form action="/search" method="get">
               <div class="field has-addons">
                 <div class="control">
-                  <input
-                    type="text"
-                    class="input"
-                    placeholder="What are you looking for ?"
-                    name="query"
-                  />
+                  <input type="text" class="input" placeholder="What are you looking for ?" name="query" />
                 </div>
-
                 <div class="control">
                   <button class="button is-success">
                     <span class="icon"><i class="fas fa-search"></i></span>
@@ -54,13 +39,10 @@
 
           <div class="navbar-item">
             <div class="buttons">
-              <router-link to="/log-in" class="button is-light"
-                >Log in</router-link
-              >
-
+              <router-link to="/log-in" class="button is-light">Log in</router-link>
               <router-link to="/cart" class="button is-success">
                 <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Cart {{ cartTotalLength }}</span>
+                <span>Cart ({{ cartTotalLength }})</span>
               </router-link>
             </div>
           </div>
@@ -68,10 +50,7 @@
       </div>
     </nav>
 
-    <div
-      class="is-loading-bar has-text-centered"
-      v-bind:class="{ 'is-loading': $store.state.isLoading }"
-    >
+    <div class="is-loading-bar has-text-centered" :class="{ 'is-loading': $store.state.isLoading }">
       <div class="lds-dual-ring"></div>
     </div>
 
@@ -89,32 +68,17 @@
 export default {
   data() {
     return {
-      showMobileMenu: false,
-      cart: {
-        items: [],
-      },
+      showMobileMenu: false
     };
   },
-
-  beforeCreate() {
-    this.$store.commit("initializeStore");
-  },
-
-  mounted() {
-    this.cart = this.$store.state.cart;
-  },
-
   computed: {
     cartTotalLength() {
-      let totalLength = 0;
-
-      for (let i = 0; i < this.cart.items.length; i++) {
-        totalLength += this.cart.items[i].quantity;
-      }
-
-      return totalLength;
-    },
+      return this.$store.state.cart.items.reduce((total, item) => total + item.quantity, 0);
+    }
   },
+  beforeCreate() {
+    this.$store.commit("initializeStore");
+  }
 };
 </script>
 

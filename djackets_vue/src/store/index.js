@@ -9,34 +9,35 @@ export default createStore({
     token: "",
     isLoading: false,
   },
-  getters: {},
   mutations: {
-    intializeStore(state) {
-      if (localStorage.getItem('cart')) {
-        state.cart = JSON.parse(localStorage.getItem('cart'))
+    initializeStore(state) {
+      if (localStorage.getItem("cart")) {
+        state.cart = JSON.parse(localStorage.getItem("cart"));
       } else {
-        localStorage.setItem('cart', JSON.stringify(state.cart))
+        localStorage.setItem("cart", JSON.stringify(state.cart));
       }
     },
-
     addToCart(state, item) {
-      const exists = state.cart.items.filter(
+      const existingItem = state.cart.items.find(
         (i) => i.product.id === item.product.id
       );
-      if (exists.length) {
-        exists[0].quantity =
-          parseInt(exists[0].quantity) + parseInt(item.quantity);
+      if (existingItem) {
+        existingItem.quantity += parseInt(item.quantity);
       } else {
         state.cart.items.push(item);
       }
-
       localStorage.setItem("cart", JSON.stringify(state.cart));
     },
-
     setIsLoading(state, status) {
       state.isLoading = status;
     },
   },
   actions: {},
   modules: {},
+  // Call initializeStore mutation when Vuex store is created
+  plugins: [
+    (store) => {
+      store.commit("initializeStore");
+    },
+  ],
 });

@@ -4,7 +4,8 @@ from .models import Order, OrderItem
 
 from product.serializers import ProductSerializer
 
-class MyOrderItemSerializer(serializers.ModelSerializer):    
+
+class MyOrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
 
     class Meta:
@@ -14,6 +15,7 @@ class MyOrderItemSerializer(serializers.ModelSerializer):
             "product",
             "quantity",
         )
+
 
 class MyOrderSerializer(serializers.ModelSerializer):
     items = MyOrderItemSerializer(many=True)
@@ -31,10 +33,11 @@ class MyOrderSerializer(serializers.ModelSerializer):
             "phone",
             "stripe_token",
             "items",
-            "paid_amount"
+            "paid_amount",
         )
 
-class OrderItemSerializer(serializers.ModelSerializer):    
+
+class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = (
@@ -42,6 +45,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "product",
             "quantity",
         )
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
@@ -60,12 +64,12 @@ class OrderSerializer(serializers.ModelSerializer):
             "stripe_token",
             "items",
         )
-    
+
     def create(self, validated_data):
-        items_data = validated_data.pop('items')
+        items_data = validated_data.pop("items")
         order = Order.objects.create(**validated_data)
 
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)
-            
+
         return order

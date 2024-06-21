@@ -85,7 +85,7 @@ export default {
           .post("/api/v1/users/", formData)
           .then((response) => {
             toast({
-              message: "Account created, please log in",
+              message: "Account created, please log in!",
               type: "is-success",
               dismissible: true,
               pauseOnHover: true,

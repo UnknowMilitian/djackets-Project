@@ -31,7 +31,7 @@
 
           <hr />
 
-          Or <router-link to="/sing-up">click here</router-link> to sign-up !
+          Or <router-link to="/sign-up">click here</router-link> to sign-up !
         </form>
       </div>
     </div>
@@ -73,7 +73,7 @@ export default {
 
           this.$store.commit("setToken", token);
 
-          axios.defaults.headers.common["Authorization"] = "Token" + token;
+          axios.defaults.headers.common["Authorization"] = "Token " + token;
 
           localStorage.setItem("token", token);
 
@@ -84,10 +84,11 @@ export default {
         .catch((error) => {
           if (error.response) {
             for (const property in error.response.data) {
-              this.error.push(`${property}: ${error.response.data[property]}`);
+              this.errors.push(`${property}: ${error.response.data[property]}`);
             }
           } else {
-            this.error.push("Something went wrong. Please try again !");
+            this.errors.push("Something went wrong. Please try again");
+
             console.log(JSON.stringify(error));
           }
         });

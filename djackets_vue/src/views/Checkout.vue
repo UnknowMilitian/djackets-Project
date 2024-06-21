@@ -117,7 +117,6 @@
 
 <script>
 import axios from "axios";
-import { loadStripe } from "@stripe/stripe-js";
 
 export default {
   name: "Checkout",
@@ -126,8 +125,8 @@ export default {
       cart: {
         items: [],
       },
-      stripe: null,
-      card: null,
+      stripe: {},
+      card: {},
       first_name: "",
       last_name: "",
       email: "",
@@ -138,16 +137,18 @@ export default {
       errors: [],
     };
   },
-  async mounted() {
+  mounted() {
     document.title = "Checkout | Djackets";
+
     this.cart = this.$store.state.cart;
 
     if (this.cartTotalLength > 0) {
-      this.stripe = await loadStripe(
+      this.stripe = Stripe(
         "pk_test_51PTptECWEfs0UOTxPj3Wdyd203qyDQPr9AndTpaBlgszeANvnW8FeKo7og6SLVT1tJLdG7KUmwrjBy3CDvvZsVe200gbXIZDuX"
       );
       const elements = this.stripe.elements();
       this.card = elements.create("card", { hidePostalCode: true });
+
       this.card.mount("#card-element");
     }
   },
@@ -192,9 +193,11 @@ export default {
         this.stripe.createToken(this.card).then((result) => {
           if (result.error) {
             this.$store.commit("setIsLoading", false);
+
             this.errors.push(
               "Something went wrong with Stripe. Please try again"
             );
+
             console.log(result.error.message);
           } else {
             this.stripeTokenHandler(result.token);
@@ -203,11 +206,18 @@ export default {
       }
     },
     async stripeTokenHandler(token) {
-      const items = this.cart.items.map((item) => ({
-        product: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price * item.quantity,
-      }));
+      const items = [];
+
+      for (let i = 0; i < this.cart.items.length; i++) {
+        const item = this.cart.items[i];
+        const obj = {
+          product: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price * item.quantity,
+        };
+
+        items.push(obj);
+      }
 
       const data = {
         first_name: this.first_name,
@@ -221,44 +231,30 @@ export default {
         stripe_token: token.id,
       };
 
-      // Optional chaining to handle undefined state.auth
-      const authToken = this.$store.state.auth?.token;
+      await axios
+        .post("/api/v1/checkout/", data)
+        .then((response) => {
+          this.$store.commit("clearCart");
+          this.$router.push("/cart/success");
+        })
+        .catch((error) => {
+          this.errors.push("Something went wrong. Please try again");
 
-      if (!authToken) {
-        this.errors.push(
-          "Authentication token is missing. Please log in again."
-        );
-        return;
-      }
-
-      try {
-        this.$store.commit("setIsLoading", true);
-
-        const response = await axios.post("/api/v1/checkout/", data, {
-          headers: {
-            Authorization: `Token ${authToken}`,
-          },
+          console.log(error);
         });
 
-        this.$store.commit("clearCart");
-        this.$router.push("/cart/success");
-      } catch (error) {
-        this.errors.push("Something went wrong. Please try again");
-        console.error(error);
-      } finally {
-        this.$store.commit("setIsLoading", false);
-      }
+      this.$store.commit("setIsLoading", false);
     },
   },
   computed: {
     cartTotalPrice() {
       return this.cart.items.reduce((acc, curVal) => {
-        return acc + curVal.product.price * curVal.quantity;
+        return (acc += curVal.product.price * curVal.quantity);
       }, 0);
     },
     cartTotalLength() {
       return this.cart.items.reduce((acc, curVal) => {
-        return acc + curVal.quantity;
+        return (acc += curVal.quantity);
       }, 0);
     },
   },

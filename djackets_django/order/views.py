@@ -1,4 +1,5 @@
 import stripe
+import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -18,10 +19,15 @@ from .models import Order, OrderItem
 from .serializers import OrderSerializer, MyOrderSerializer
 
 
+logger = logging.getLogger(__name__)
+
+
 @api_view(["POST"])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def checkout(request):
+    logger.info("User: %s", request.user)
+    logger.info("Data: %s", request.data)
     serializer = OrderSerializer(data=request.data)
 
     if serializer.is_valid():

@@ -147,11 +147,27 @@ export default {
         "pk_test_51PTptECWEfs0UOTxPj3Wdyd203qyDQPr9AndTpaBlgszeANvnW8FeKo7og6SLVT1tJLdG7KUmwrjBy3CDvvZsVe200gbXIZDuX"
       );
       const elements = this.stripe.elements();
-      this.card = elements.create("card", { hidePostalCode: true });
+      this.card = elements.create("card", {
+        hidePostalCode: true,
+        style: {
+          base: {
+            color: "#ffffff", // Change this to your desired color
+            fontSize: "16px",
+            "::placeholder": {
+              color: "#aab7c4",
+            },
+          },
+          invalid: {
+            color: "#fa755a",
+            iconColor: "#fa755a",
+          },
+        },
+      });
 
       this.card.mount("#card-element");
     }
   },
+
   methods: {
     getItemTotal(item) {
       return item.quantity * item.product.price;
